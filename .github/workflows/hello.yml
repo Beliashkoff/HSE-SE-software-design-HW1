@@ -1,0 +1,18 @@
+name: Hello World Test
+
+on:
+  push: 
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs: 
+  hello-job:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Say Hello
+        run: echo "hello From GitHub Actions!"
+
+      - name: Show current date
+        run: date
