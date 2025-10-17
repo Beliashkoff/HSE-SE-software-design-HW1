@@ -2,7 +2,7 @@ package domain
 
 // Eater - килограммы в сутки
 type Eater interface {
-	DailyFoodKG() int
+	Food() int
 }
 
 // InventoryItem - инвентарный номер по счёту

@@ -3,7 +3,7 @@ package repo
 import (
 	"testing"
 
-	"zoo-erp/internal/domain"
+	"github.com/Beliashkoff/HSE-SE-software-design-HW1/zoo-erp/internal/domain"
 
 	"github.com/stretchr/testify/require"
 )

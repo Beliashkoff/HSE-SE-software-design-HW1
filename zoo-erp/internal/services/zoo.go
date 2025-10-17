@@ -1,8 +1,8 @@
 package services
 
 import (
-	"zoo-erp/internal/domain"
-	"zoo-erp/internal/repo"
+	"github.com/Beliashkoff/HSE-SE-software-design-HW1/zoo-erp/internal/domain"
+	"github.com/Beliashkoff/HSE-SE-software-design-HW1/zoo-erp/internal/repo"
 )
 
 // ZooService — сценарии зоопарка.

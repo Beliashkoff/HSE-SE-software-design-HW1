@@ -7,10 +7,13 @@ import (
 	"strconv"
 	"strings"
 
-	"zoo-erp/internal/app"
-	"zoo-erp/internal/domain"
-	"zoo-erp/internal/repo"
-	"zoo-erp/internal/services"
+	"github.com/Beliashkoff/HSE-SE-software-design-HW1/zoo-erp/internal/repo"
+
+	"github.com/Beliashkoff/HSE-SE-software-design-HW1/zoo-erp/internal/services"
+
+	"github.com/Beliashkoff/HSE-SE-software-design-HW1/zoo-erp/internal/domain"
+
+	"github.com/Beliashkoff/HSE-SE-software-design-HW1/zoo-erp/internal/app"
 )
 
 func main() {

@@ -3,9 +3,9 @@ package services
 import (
 	"testing"
 
+	"github.com/Beliashkoff/HSE-SE-software-design-HW1/zoo-erp/internal/domain"
+	"github.com/Beliashkoff/HSE-SE-software-design-HW1/zoo-erp/internal/repo"
 	"github.com/stretchr/testify/require"
-	"zoo-erp/internal/domain"
-	"zoo-erp/internal/repo"
 )
 
 type vetMock struct{ ok bool }
@@ -37,7 +37,7 @@ func TestContactZoo_FilterByKindness(t *testing.T) {
 
 	r1, _ := domain.NewRabbit(1, 2, 6) // >5
 	r2, _ := domain.NewMonkey(2, 2, 10)
-	tg, _ := domain.NewTiger(3, 7)     // не травоядное
+	tg, _ := domain.NewTiger(3, 7) // не травоядное
 
 	_ = z.AcceptAnimal(r1)
 	_ = z.AcceptAnimal(r2)

@@ -1,8 +1,9 @@
 package app
 
 import (
-	"zoo-erp/internal/repo"
-	"zoo-erp/internal/services"
+	"github.com/Beliashkoff/HSE-SE-software-design-HW1/zoo-erp/internal/services"
+
+	"github.com/Beliashkoff/HSE-SE-software-design-HW1/zoo-erp/internal/repo"
 
 	"go.uber.org/dig"
 )
