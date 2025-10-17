@@ -1,1 +1,160 @@
+name: Validate and Auto-merge
 
+on: 
+  pull_request:
+    types: [opened, synchronize, reopened, edited, labeled]
+  pull_request_review:
+    types: [submitted]
+  check_suite:
+    types: [completed]
+jobs:
+  # Job 1: Проверка названия ветки
+  check-branch-name:
+    name: Branch Name Validation
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Check branch naming
+        uses: deepakputhraya/action-branch-name@master
+        with:
+          regex: '^(docs|feat|general|fix|bugfix|chore|ci/cd)\/(DEV|add|update|refactor|remove)-[a-z0-9-]+$'
+          allowed_prefixes: 'docs/,feat/,general/,fix/bugfix/chore/ci/cd/'
+          ignore: main
+          min_length: 5
+          max_length: 50
+  
+  # Job 2: Проверка формата коммитов
+  check-commits:
+    name: Commit Messages Validation
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Check commit messages
+        uses: wagoid/commitlint-github-action@v6
+        with:
+          configFile: '.commitlintrc.json'
+  
+  # Job 3: Проверка названия PR
+  check-pr-title:
+    name: PR Title Validation
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    
+    steps:
+      - name: Check PR title format
+        uses: amannn/action-semantic-pull-request@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          types: |
+            docs
+            content
+            fix
+            refactor
+            chore
+            feat
+            bugfix
+            ci/cd
+          requireScope: false
+          subjectPattern: ^[a-z].+$
+          subjectPatternError: |
+            Название PR должно начинаться с маленькой буквы.
+            Примеры правильных названий:
+              ✅ docs: add git workflow guide
+              ✅ content: create sprint report
+              ❌ Docs: Add Git Workflow Guide
+  
+  # Job 4: Проверка описания PR
+  check-pr-description:
+    name: PR Description Check
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Check PR has description
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const body = pr.body || '';
+            
+            if (body.trim().length < 20) {
+              core.setFailed('❌ PR должен содержать описание минимум 20 символов');
+              return;
+            }
+            
+            // Проверяем наличие ключевых разделов
+            const hasDescription = body.includes('## Описание') || 
+                                   body.includes('## Description') ||
+                                   body.length > 50;
+            
+            if (!hasDescription) {
+              core.setFailed('❌ PR должен содержать раздел "## Описание"');
+              return;
+            }
+            
+            console.log('✅ Описание PR соответствует требованиям');
+  
+  # Job 5: Автоматический merge при успехе
+  auto-merge:
+    name: Auto Merge PR
+    needs: [check-branch-name, check-commits, check-pr-title, check-pr-description]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && github.event.pull_request.draft == false
+    
+    permissions:
+      contents: write
+      pull-requests: write
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Check if all checks passed
+        id: check-status
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { data: reviews } = await github.rest.pulls.listReviews({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+            });
+            
+            const approvedReviews = reviews.filter(review => 
+              review.state === 'APPROVED'
+            );
+            
+            if (approvedReviews.length === 0) {
+              core.setFailed('❌ PR требует минимум 1 approve');
+              return false;
+            }
+            
+            console.log(`✅ Найдено ${approvedReviews.length} одобрений`);
+            return true;
+      
+      - name: Enable auto-merge
+        if: steps.check-status.outputs.result == 'true'
+        uses: peter-evans/enable-pull-request-automerge@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          pull-request-number: ${{ github.event.pull_request.number }}
+          merge-method: squash
+      
+      - name: Auto approve (only for bot PRs)
+        if: github.event.pull_request.user.login == 'dependabot[bot]'
+        uses: hmarr/auto-approve-action@v4
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
