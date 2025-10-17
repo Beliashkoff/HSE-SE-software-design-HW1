@@ -1,35 +1,48 @@
 package domain
 
-import "fmt"
+import (
+	"errors"
+	"strings"
+)
 
 type Animal struct {
-	type_of_animal   string
-	inventory_number int
-	daily_ration     int
+	name            string
+	inventoryNumber int
+	dailyFoodKG     int
 }
 
+var (
+	ErrEmptyName      = errors.New("имя не может быть пустым")
+	ErrNegativeFood   = errors.New("Значение потребляемой еды не может быть отрицательным")
+	ErrNegativeNumber = errors.New("Значение номера не может быть отрицательным")
+)
+
 func NewAnimal(name string, number, food int) (*Animal, error) {
+	n := strings.TrimSpace(name)
 	if food < 0 {
-		return nil, fmt.Errorf("Потребление меньше 0 не может быть")
+		return nil, ErrNegativeFood
 	}
-	if name == "" {
-		return nil, fmt.Errorf("Имя не может быть пустым")
+	if n == "" {
+		return nil, ErrEmptyName
+	}
+	if number < 0 {
+		return nil, ErrNegativeNumber
 	}
 	return &Animal{
-		type_of_animal:   name,
-		inventory_number: number,
-		daily_ration:     food,
+		name:            n,
+		inventoryNumber: number,
+		dailyFoodKG:     food,
 	}, nil
 }
 
 func (a Animal) Food() int {
-	return a.daily_ration
+	return a.dailyFoodKG
 }
 
 func (a Animal) Name() string {
-	return a.type_of_animal
+	return a.name
 }
 
 func (a Animal) Number() int {
-	return a.inventory_number
+	return a.inventoryNumber
 }
