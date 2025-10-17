@@ -3,26 +3,20 @@ package repo
 import (
 	"sync"
 
-	"github.com/Beliashkoff/HSE-SE-software-design-HW1/zoo-erp/internal/domain"
+	"zoo-erp/internal/domain"
 )
 
-// animalRecord — узкий контракт для репозитория: нужно и есть, и быть инвентарным
-type animalRecord interface {
-	domain.Eater
-	domain.InventoryItem
-}
-
-// AnimalRepo — интерфейс хранилища животных.
+// AnimalRepo — хранилище животных (только сущности, у которых есть Food()).
 type AnimalRepo interface {
-	Add(x animalRecord) error
-	All() []animalRecord
-	GetByNumber(n int) (animalRecord, bool)
+	Add(x domain.InventoryItem) error
+	All() []domain.InventoryItem
+	GetByNumber(n int) (domain.InventoryItem, bool)
 }
 
 type animalMem struct {
 	mu   sync.RWMutex
-	list []animalRecord // порядок добавления
-	idx  map[int]int    // номер -> индекс в list
+	list []domain.InventoryItem // порядок добавления
+	idx  map[int]int            // номер -> индекс в list
 }
 
 func NewAnimalMem() AnimalRepo {
@@ -31,7 +25,12 @@ func NewAnimalMem() AnimalRepo {
 	}
 }
 
-func (r *animalMem) Add(x animalRecord) error {
+func (r *animalMem) Add(x domain.InventoryItem) error {
+	// Защитимся от «вещей»: животное обязано быть Eater.
+	if _, ok := x.(domain.Eater); !ok {
+		return ErrNotAnimal
+	}
+
 	n := x.Number()
 
 	r.mu.Lock()
@@ -46,16 +45,16 @@ func (r *animalMem) Add(x animalRecord) error {
 	return nil
 }
 
-func (r *animalMem) All() []animalRecord {
+func (r *animalMem) All() []domain.InventoryItem {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 
-	out := make([]animalRecord, len(r.list))
+	out := make([]domain.InventoryItem, len(r.list))
 	copy(out, r.list)
 	return out
 }
 
-func (r *animalMem) GetByNumber(n int) (animalRecord, bool) {
+func (r *animalMem) GetByNumber(n int) (domain.InventoryItem, bool) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 
