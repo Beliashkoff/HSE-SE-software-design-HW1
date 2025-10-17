@@ -3,7 +3,7 @@ package repo
 import (
 	"sync"
 
-	"zoo-erp/internal/domain"
+	"github.com/Beliashkoff/HSE-SE-software-design-HW1/zoo-erp/internal/domain"
 )
 
 // AnimalRepo — хранилище животных (только сущности, у которых есть Food()).

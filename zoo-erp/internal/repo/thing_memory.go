@@ -3,7 +3,7 @@ package repo
 import (
 	"sync"
 
-	"zoo-erp/internal/domain"
+	"github.com/Beliashkoff/HSE-SE-software-design-HW1/zoo-erp/internal/domain"
 )
 
 // ThingRepo — хранилище инвентарных вещей (не животных).

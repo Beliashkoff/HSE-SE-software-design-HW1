@@ -3,8 +3,8 @@ package repo
 import (
 	"testing"
 
+	"github.com/Beliashkoff/HSE-SE-software-design-HW1/zoo-erp/internal/domain"
 	"github.com/stretchr/testify/require"
-	"zoo-erp/internal/domain"
 )
 
 func TestThingRepo_DuplicateNumber(t *testing.T) {
